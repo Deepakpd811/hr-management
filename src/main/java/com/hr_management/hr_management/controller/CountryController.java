@@ -3,41 +3,63 @@ package com.hr_management.hr_management.controller;
 import com.hr_management.hr_management.mapper.CountryMapper;
 import com.hr_management.hr_management.model.dto.CountryDTO;
 import com.hr_management.hr_management.model.entity.Country;
-import com.hr_management.hr_management.model.entity.Region;
 import com.hr_management.hr_management.repository.CountryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/countries")
 public class CountryController {
+
     @Autowired
     private CountryRepo countryRepo;
 
     @Autowired
     private CountryMapper mapper;
 
+//     Get all countries
     @GetMapping
-    public List<CountryDTO> findAll(){
+    public ResponseEntity<List<CountryDTO>> findAll() {
         List<Country> countryList = countryRepo.findAll();
-        return countryList.stream().map(x->mapper.mapToCountryDTO(x) ).collect(Collectors.toList());
+        List<CountryDTO> dtoList = countryList.stream()
+                .map(mapper::mapToCountryDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtoList);  // HTTP 200 OK
     }
 
+     // Get country by its countryId
+
     @GetMapping("/{id}")
-    public CountryDTO findUsingId(@PathVariable("id") String countryId){
+    public ResponseEntity<CountryDTO> findUsingId(@PathVariable("id") String countryId) {
         Country country = countryRepo.findByCountryId(countryId);
 
-        if(country==null){
-            throw new RuntimeException("Country Not Found");
+        if (country == null) {
+            return ResponseEntity.notFound().build();  // HTTP 404 NOT FOUND
         }
-        return mapper.mapToCountryDTO(country);
+
+        CountryDTO dto = mapper.mapToCountryDTO(country);
+        return ResponseEntity.ok(dto);  // HTTP 200 OK
+    }
+
+//      Get all countries under a specific region
+    @GetMapping("/by_region/{region_id}")
+    public ResponseEntity<List<CountryDTO>> findByRegionId(@PathVariable("region_id") BigDecimal regionId) {
+        List<Country> countryList = countryRepo.findByRegion_RegionId(regionId);
+
+        if (countryList.isEmpty()) {
+            return ResponseEntity.notFound().build();  // HTTP 404 NOT FOUND
+        }
+
+        List<CountryDTO> dtoList = countryList.stream()
+                .map(mapper::mapToCountryDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtoList);  // HTTP 200 OK
     }
 }

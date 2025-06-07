@@ -10,4 +10,6 @@ import java.util.List;
 
 public interface CountryRepo extends JpaRepository<Country, String> {
     public Country findByCountryId(String countryId) ;
+
+    public List<Country> findByRegion_RegionId(BigDecimal regionRegionId);
 }
