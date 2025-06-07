@@ -1,5 +1,6 @@
 package com.hr_management.hr_management.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +10,7 @@ import java.util.List ;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "countries")
 public class Country {
     @Id
     @Column(name = "country_id", nullable = false, length = 4)
@@ -22,5 +24,6 @@ public class Country {
     private Region region;
 
     @OneToMany(mappedBy = "country")
+    @JsonIgnore
     private List<Location> locations;
 }
