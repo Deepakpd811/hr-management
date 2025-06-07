@@ -13,7 +13,7 @@ public class CountryMapper {
         CountryDTO dto = new CountryDTO();
         dto.setCountryId(country.getCountryId());
         dto.setCountryName(country.getCountryName());
-        dto.setRegion_ID(country.getRegion().getRegionId());
+        dto.setRegion(country.getRegion());
         return dto;
     }
 }

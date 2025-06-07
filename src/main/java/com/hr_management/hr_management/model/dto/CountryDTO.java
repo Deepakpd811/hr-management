@@ -1,6 +1,7 @@
 package com.hr_management.hr_management.model.dto;
 
 import com.hr_management.hr_management.model.entity.Location;
+import com.hr_management.hr_management.model.entity.Region;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,5 +15,5 @@ import java.util.List;
 public class CountryDTO {
     private String countryId;
     private String countryName;
-    private BigDecimal region_ID;
+    private Region region;
 }
