@@ -105,8 +105,6 @@ public class LocationsController {
     }
 
 
-
-
     @GetMapping("/byCountry/{countryId}")
     public ResponseEntity<ApiResponseDto> getLocationsByCountry(@PathVariable String countryId, HttpServletRequest request) {
         List<LocationDTO> locationDTOs = locationRepository.findByCountryCountryId(countryId).stream()
