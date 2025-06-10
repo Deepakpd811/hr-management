@@ -14,14 +14,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/countries")
 public class CountryController {
-
     @Autowired
     private CountryRepository countryRepo;
 
@@ -32,69 +30,70 @@ public class CountryController {
     private CountryService countryService;
 
     //     Get all countries
+
     @GetMapping
     public ResponseEntity<ApiResponseDto> findAll(HttpServletRequest request) {
-        List<Country> countryList = countryRepo.findAll();
-        List<CountryDTO> dtoList = countryList.stream()
-                .map(mapper::mapToCountryDTO)
-                .collect(Collectors.toList());
+            List<Country> countryList = countryRepo.findAll();
+            List<CountryDTO> dtoList = countryList.stream()
+                    .map(mapper::mapToCountryDTO)
+                    .collect(Collectors.toList());
 
-        return BuildResponse.success(dtoList, "List of all countries ", request.getRequestURI());
+            return BuildResponse.success(dtoList, "List of all countries ", request.getRequestURI());
     }
 
-    // Get country by its countryId
-    @GetMapping("/{id}")
-    public ResponseEntity<CountryDTO> findUsingId(@PathVariable("id") String countryId) {
-        Country country = countryRepo.findByCountryId(countryId);
+        // Get country by its countryId
+        @GetMapping("/{id}")
+        public ResponseEntity<CountryDTO> findUsingId(@PathVariable("id") String countryId) {
+            Country country = countryRepo.findByCountryId(countryId);
 
-        if (country == null) {
-            return ResponseEntity.notFound().build();  // HTTP 404 NOT FOUND
+            if (country == null) {
+                return ResponseEntity.notFound().build();  // HTTP 404 NOT FOUND
+            }
+
+            CountryDTO dto = mapper.mapToCountryDTO(country);
+            return ResponseEntity.ok(dto);  // HTTP 200 OK
         }
 
-        CountryDTO dto = mapper.mapToCountryDTO(country);
-        return ResponseEntity.ok(dto);  // HTTP 200 OK
-    }
+        //      Get all countries under a specific region
+        @GetMapping("/by_region/{region_id}")
+        public ResponseEntity<List<CountryDTO>> findByRegionId(@PathVariable("region_id") BigDecimal regionId) {
+            List<Country> countryList = countryRepo.findByRegion_RegionId(regionId);
 
-    //      Get all countries under a specific region
-    @GetMapping("/by_region/{region_id}")
-    public ResponseEntity<List<CountryDTO>> findByRegionId(@PathVariable("region_id") BigDecimal regionId) {
-        List<Country> countryList = countryRepo.findByRegion_RegionId(regionId);
+            if (countryList.isEmpty()) {
+                return ResponseEntity.notFound().build();  // HTTP 404 NOT FOUND
+            }
+            List<CountryDTO> dtoList = countryList.stream()
+                    .map(mapper::mapToCountryDTO)
+                    .collect(Collectors.toList());
 
-        if (countryList.isEmpty()) {
-            return ResponseEntity.notFound().build();  // HTTP 404 NOT FOUND
+            return ResponseEntity.ok(dtoList);  // HTTP 200 OK
         }
-        List<CountryDTO> dtoList = countryList.stream()
-                .map(mapper::mapToCountryDTO)
-                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(dtoList);  // HTTP 200 OK
-    }
+        @PostMapping
+        public ResponseEntity<CountryDTO> save(@RequestBody CountryDTO countryDTO) {
+            Country country = new Country();
+            country.setCountryName(countryDTO.getCountryName());
+            country.setRegion(countryDTO.getRegion());
+            country.setCountryId(countryDTO.getCountryId());
 
-    @PostMapping
-    public ResponseEntity<CountryDTO> save(@RequestBody CountryDTO countryDTO) {
-        Country country = new Country();
-        country.setCountryName(countryDTO.getCountryName());
-        country.setRegion(countryDTO.getRegion());
-        country.setCountryId(countryDTO.getCountryId());
-
-        return ResponseEntity.ok(mapper.mapToCountryDTO(countryService.checkRegionId(country)));
-    }
-
-    @PutMapping("/{countryId}")
-    public ResponseEntity<CountryDTO> update(@RequestBody CountryDTO countryDTO, @PathVariable("countryId") String countryId) {
-        Country country = countryRepo.findByCountryId(countryId);
-        if (country == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(mapper.mapToCountryDTO(countryService.checkRegionId(country)));
         }
-        country.setCountryName(countryDTO.getCountryName());
-        country.setRegion(countryDTO.getRegion());
 
-        return ResponseEntity.ok(mapper.mapToCountryDTO(countryRepo.save(country)));
-    }
+        @PutMapping("/{countryId}")
+        public ResponseEntity<CountryDTO> update(@RequestBody CountryDTO countryDTO, @PathVariable("countryId") String countryId) {
+            Country country = countryRepo.findByCountryId(countryId);
+            if (country == null) {
+                return ResponseEntity.notFound().build();
+            }
+            country.setCountryName(countryDTO.getCountryName());
+            country.setRegion(countryDTO.getRegion());
 
-    @GetMapping("/count_by_region")
-    public ResponseEntity<List<countryCountInterface>> countByRegion(){
-        List<countryCountInterface> countryCountInterfaceList = countryRepo.countCountriesByRegion() ;
-        return ResponseEntity.ok(countryCountInterfaceList);
-    }
+            return ResponseEntity.ok(mapper.mapToCountryDTO(countryRepo.save(country)));
+        }
+
+        @GetMapping("/count_by_region")
+        public ResponseEntity<List<countryCountInterface>> countByRegion(){
+            List<countryCountInterface> countryCountInterfaceList = countryRepo.countCountriesByRegion() ;
+            return ResponseEntity.ok(countryCountInterfaceList);
+        }
 }
