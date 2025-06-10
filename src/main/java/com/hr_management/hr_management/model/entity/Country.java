@@ -1,5 +1,6 @@
 package com.hr_management.hr_management.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,11 +20,7 @@ public class Country {
     @Column(name = "country_name", length = 60)
     private String countryName;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")
     private Region region;
-
-    @OneToMany(mappedBy = "country")
-    @JsonIgnore
-    private List<Location> locations;
 }

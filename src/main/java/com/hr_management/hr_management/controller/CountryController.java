@@ -3,8 +3,10 @@ package com.hr_management.hr_management.controller;
 import com.hr_management.hr_management.mapper.CountryMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.country.CountryDTO;
+import com.hr_management.hr_management.model.dto.country.countryCountInterface;
 import com.hr_management.hr_management.model.entity.Country;
 import com.hr_management.hr_management.repository.CountryRepository;
+import com.hr_management.hr_management.service.CountryService;
 import com.hr_management.hr_management.utils.BuildResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class CountryController {
 
     @Autowired
     private CountryMapper mapper;
+
+    @Autowired
+    private CountryService countryService;
 
     //     Get all countries
     @GetMapping
@@ -58,7 +63,6 @@ public class CountryController {
         if (countryList.isEmpty()) {
             return ResponseEntity.notFound().build();  // HTTP 404 NOT FOUND
         }
-
         List<CountryDTO> dtoList = countryList.stream()
                 .map(mapper::mapToCountryDTO)
                 .collect(Collectors.toList());
@@ -73,7 +77,7 @@ public class CountryController {
         country.setRegion(countryDTO.getRegion());
         country.setCountryId(countryDTO.getCountryId());
 
-        return ResponseEntity.ok(mapper.mapToCountryDTO(countryRepo.save(country)));
+        return ResponseEntity.ok(mapper.mapToCountryDTO(countryService.checkRegionId(country)));
     }
 
     @PutMapping("/{countryId}")
@@ -86,5 +90,11 @@ public class CountryController {
         country.setRegion(countryDTO.getRegion());
 
         return ResponseEntity.ok(mapper.mapToCountryDTO(countryRepo.save(country)));
+    }
+
+    @GetMapping("/count_by_region")
+    public ResponseEntity<List<countryCountInterface>> countByRegion(){
+        List<countryCountInterface> countryCountInterfaceList = countryRepo.countCountriesByRegion() ;
+        return ResponseEntity.ok(countryCountInterfaceList);
     }
 }

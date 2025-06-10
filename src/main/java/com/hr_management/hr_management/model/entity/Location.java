@@ -40,4 +40,5 @@ public class Location {
     @JsonBackReference(value = "location-departments")
     @OneToMany(mappedBy = "location")
     private List<Department> departments;
+
 }
