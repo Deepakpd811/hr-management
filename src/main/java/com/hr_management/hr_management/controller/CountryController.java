@@ -1,11 +1,15 @@
 package com.hr_management.hr_management.controller;
 
 import com.hr_management.hr_management.mapper.CountryMapper;
+import com.hr_management.hr_management.mapper.EmployeeMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
+import com.hr_management.hr_management.model.dto.EmployeeDTO;
 import com.hr_management.hr_management.model.dto.country.CountryDTO;
 import com.hr_management.hr_management.model.dto.country.countryCountInterface;
 import com.hr_management.hr_management.model.entity.Country;
+import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.repository.CountryRepository;
+import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.service.CountryService;
 import com.hr_management.hr_management.utils.BuildResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +33,11 @@ public class CountryController {
 
     @Autowired
     private CountryService countryService;
+
+    @Autowired
+    private EmployeeRepository employeeRepo;
+    @Autowired
+    private EmployeeMapper employeeMapper;
 
     //     Get all countries
 
@@ -95,5 +105,11 @@ public class CountryController {
     public ResponseEntity<List<countryCountInterface>> countByRegion(){
         List<countryCountInterface> countryCountInterfaceList = countryRepo.countCountriesByRegion() ;
         return ResponseEntity.ok(countryCountInterfaceList);
+    }
+    
+    @GetMapping("/list-all-employees/{countryName}")
+    public ResponseEntity<ApiResponseDto> listAllEmployees(@PathVariable("countryName") String countryName,HttpServletRequest request){
+        List<EmployeeDTO> employeeList = countryService.getEmployeesByCountryName(countryName);
+        return BuildResponse.success(employeeList,"Employees in : "+countryName,request.getRequestURI());
     }
 }

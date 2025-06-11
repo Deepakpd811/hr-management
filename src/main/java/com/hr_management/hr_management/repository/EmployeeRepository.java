@@ -54,6 +54,12 @@ public interface EmployeeRepository extends JpaRepository<Employee, BigDecimal> 
             "COUNT(e) AS employeeCount " +
             "FROM Employee e JOIN e.manager m " +
             "GROUP BY m.firstName, m.lastName, m.department.departmentName")
-    List<ManagerGroupView> findEmployeesGroupedByManager();
+    List<ManagerGroupView> findEmployeesGroupedByManager() ;
 
+    @Query("SELECT e FROM Employee e " +
+            "JOIN e.department d " +
+            "JOIN d.location l " +
+            "JOIN l.country c " +
+            "WHERE c.countryName = :countryName")
+    List<Employee> findEmployeesByCountryName(String countryName);
 }
